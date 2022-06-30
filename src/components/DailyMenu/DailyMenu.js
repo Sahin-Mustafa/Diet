@@ -26,8 +26,8 @@ const DailyMenu = ({
         `${Config.Food_Api}/item?nix_item_id=${weeklyMenu.foodId[day][meal][foodIndex]}`,
         {
           headers: {
-            'x-app-id': '69f1759f',
-            'x-app-key': '0675eda1a89cfb70a7881830b9c7bb9d',
+            'x-app-id': '',
+            'x-app-key': '',
             'x-remote-user-id': '0',
           },
         },
