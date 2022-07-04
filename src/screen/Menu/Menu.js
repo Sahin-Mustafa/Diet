@@ -39,8 +39,8 @@ const Menu = ({navigation, route}) => {
       `${Config.Food_Api}/instant?query=${search}&common=true&detailed=true`,
       {
         headers: {
-          'x-app-id': '69f1759f',
-          'x-app-key': '0675eda1a89cfb70a7881830b9c7bb9d',
+          'x-app-id': '',
+          'x-app-key': '',
           'x-remote-user-id': '0',
         },
       },
