@@ -1,14 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {and} from 'react-native-reanimated';
-
 export default function (state, action) {
-  let userData = state.userData;
-  let dailyData = state.dailyData;
-  let weeklyMenu = state.weeklyMenu;
-  let montly = state.montlyData;
   switch (action.type) {
     case 'USER_INFO':
-      userData = action.payload.data;
+      const userData = action.payload.data;
       console.log('dispatvh içindeyim', userData);
       try {
         const jsonValue = JSON.stringify(userData);
@@ -21,48 +15,55 @@ export default function (state, action) {
     case 'ADD_FOOD':
       let {food, year, month, date, day, meal} = action.payload;
       let time = `${day}/${date}/${month}/${year}`;
-      const dayControl = dailyData.time.split('/');
-      if (time !== dailyData.time) {
-        dailyData = {protein: 0, fat: 0, carbohydrate: 0, calories: 0};
-        montly.days.push(time);
-        if (montly.days.length > 31) {
-          montly.days.shift();
-          montly.data.shift();
+      const dayControl = state.dailyData.time.split('/');
+      if (time !== state.dailyData.time) {
+        state.dailyData = {protein: 0, fat: 0, carbohydrate: 0, calories: 0};
+        state.montlyData.days.push(time);
+        if (state.montlyData.days.length > 31) {
+          state.montlyData.days.shift();
+          state.montlyData.data.shift();
         }
         if (`${day}` === dayControl[0] && `(${date}` !== dayControl[1]) {
-          weeklyMenu.week[day] = [[], [], [], []];
-          weeklyMenu.foodId[day] = [[], [], [], []];
+          state.weeklyMenu.week[day] = [[], [], [], []];
+          state.weeklyMenu.foodId[day] = [[], [], [], []];
         }
       }
 
-      dailyData.time = time;
-      console.log('zaman', dailyData.time);
-      dailyData.protein += Math.round(100 * food.full_nutrients[0].value) / 100;
-      dailyData.fat += Math.round(100 * food.full_nutrients[1].value) / 100;
-      dailyData.carbohydrate +=
+      state.dailyData.time = time;
+      console.log('zaman', state.dailyData.time);
+      state.dailyData.protein +=
+        Math.round(100 * food.full_nutrients[0].value) / 100;
+      state.dailyData.fat +=
+        Math.round(100 * food.full_nutrients[1].value) / 100;
+      state.dailyData.carbohydrate +=
         Math.round(100 * food.full_nutrients[2].value) / 100;
-      dailyData.calories +=
+      state.dailyData.calories +=
         Math.round(100 * food.full_nutrients[3].value) / 100;
 
       let monthData = [
-        dailyData.protein,
-        dailyData.fat,
-        dailyData.carbohydrate,
-        dailyData.calories,
+        state.dailyData.protein,
+        state.dailyData.fat,
+        state.dailyData.carbohydrate,
+        state.dailyData.calories,
       ];
 
-      weeklyMenu.week[day][meal].push(food.food_name);
-      weeklyMenu.foodId[day][meal].push(food.nix_item_id);
+      state.weeklyMenu.week[day][meal].push(food.food_name);
+      state.weeklyMenu.foodId[day][meal].push(food.nix_item_id);
 
-      let montlyIndexDay = montly.days.indexOf(time);
-      montly.data[montlyIndexDay] = monthData;
+      let montlyIndexDay = state.montlyData.days.indexOf(time);
+      state.montlyData.data[montlyIndexDay] = monthData;
 
-      AsyncStorage.setItem('weeklyMenu', JSON.stringify(weeklyMenu));
-      AsyncStorage.setItem('dailyData', JSON.stringify(dailyData));
-      AsyncStorage.setItem('montly', JSON.stringify(montly));
-      console.log('eklendi:\n', weeklyMenu.week[day][meal]);
+      AsyncStorage.setItem('weeklyMenu', JSON.stringify(state.weeklyMenu));
+      AsyncStorage.setItem('dailyData', JSON.stringify(state.dailyData));
+      AsyncStorage.setItem('montly', JSON.stringify(state.montlyData));
+      console.log('eklendi:\n', state.montlyData);
 
-      return {...state, weeklyMenu, dailyData, montlyData: montly};
+      return {
+        ...state,
+        weeklyMenu: state.weeklyMenu,
+        dailyData: state.dailyData,
+        montlyData: state.montlyData,
+      };
 
     case 'REMOVE_FOOD':
       food = action.payload.food;
@@ -73,33 +74,40 @@ export default function (state, action) {
       meal = action.payload.meal;
       time = `${month}/${date}/${year}`;
 
-      let indexFood = weeklyMenu.week[day][meal].indexOf(food[0].food_name);
+      let indexFood = state.weeklyMenu.week[day][meal].indexOf(
+        food[0].food_name,
+      );
 
       if (indexFood > -1) {
-        weeklyMenu.week[day][meal].splice(indexFood, 1); // 2nd parameter means remove one item only
-        weeklyMenu.foodId[day][meal].splice(indexFood, 1);
+        state.weeklyMenu.week[day][meal].splice(indexFood, 1); // 2nd parameter means remove one item only
+        state.weeklyMenu.foodId[day][meal].splice(indexFood, 1);
       }
 
-      dailyData.protein -= food[0].nf_protein / 4;
-      dailyData.fat -= food[0].nf_total_fat / 4;
-      dailyData.carbohydrate -= food[0].nf_total_carbohydrate / 4;
-      dailyData.calories -= food[0].nf_calories / 4;
+      state.dailyData.protein -= food[0].nf_protein / 4;
+      state.dailyData.fat -= food[0].nf_total_fat / 4;
+      state.dailyData.carbohydrate -= food[0].nf_total_carbohydrate / 4;
+      state.dailyData.calories -= food[0].nf_calories / 4;
 
       monthData = [
-        dailyData.protein,
-        dailyData.fat,
-        dailyData.carbohydrate,
-        dailyData.calories,
+        state.dailyData.protein,
+        state.dailyData.fat,
+        state.dailyData.carbohydrate,
+        state.dailyData.calories,
       ];
 
-      montlyIndexDay = montly.days.indexOf(time);
-      montly.data[montlyIndexDay] = monthData;
+      montlyIndexDay = state.montlyData.days.indexOf(time);
+      state.montlyData.data[montlyIndexDay] = monthData;
 
-      AsyncStorage.setItem('weeklyMenu', JSON.stringify(weeklyMenu));
-      AsyncStorage.setItem('dailyData', JSON.stringify(dailyData));
-      AsyncStorage.setItem('montly', JSON.stringify(montly));
+      AsyncStorage.setItem('weeklyMenu', JSON.stringify(state.weeklyMenu));
+      AsyncStorage.setItem('dailyData', JSON.stringify(state.dailyData));
+      AsyncStorage.setItem('montly', JSON.stringify(state.montlyData));
 
-      return {...state, weeklyMenu, dailyData, montlyData: montly};
+      return {
+        ...state,
+        weeklyMenu: state.weeklyMenu,
+        dailyData: state.dailyData,
+        montlyData: state.montlyData,
+      };
 
     default:
       return state;

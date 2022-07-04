@@ -9,9 +9,7 @@ const Home = ({navigation, route}) => {
   const selectorData = useSelector(item => item.userData);
   const selectorData2 = useSelector(item => item.dailyData);
 
-  const [userInfo, setUserInfo] = React.useState(selectorData);
-  const [dailyData, setDailyData] = React.useState(selectorData2);
-  const dayControl = dailyData.time.split('/');
+  const dayControl = selectorData2.time.split('/');
   const days = [
     'Sunday',
     'Monday',
@@ -21,11 +19,6 @@ const Home = ({navigation, route}) => {
     'Friday',
     'Saturday',
   ];
-
-  React.useEffect(() => {
-    setUserInfo(selectorData);
-    setDailyData(selectorData2);
-  }, [selectorData, selectorData2]);
 
   const setPieData = (remaining, consumed) => {
     return {
@@ -46,13 +39,13 @@ const Home = ({navigation, route}) => {
     <ScrollView style={{flex: 1, backgroundColor: '#eeeeee'}}>
       <CustomHeader title={days[new Date().getDay()]} navigation={navigation} />
       <View style={{flex: 1, marginHorizontal: 10}}>
-        {userInfo.daily_calori > 0 ? (
+        {selectorData.daily_calori > 0 ? (
           <DailyInfo
-            calories={Math.round(100 * (userInfo.daily_calori / 4)) / 100}
-            fat={Math.round(100 * (userInfo.daily_fat / 4)) / 100}
-            protein={Math.round(100 * (userInfo.daily_protein / 4)) / 100}
+            calories={Math.round(100 * (selectorData.daily_calori / 4)) / 100}
+            fat={Math.round(100 * (selectorData.daily_fat / 4)) / 100}
+            protein={Math.round(100 * (selectorData.daily_protein / 4)) / 100}
             carbohydrate={
-              Math.round(100 * (userInfo.daily_carbohydrate / 4)) / 100
+              Math.round(100 * (selectorData.daily_carbohydrate / 4)) / 100
             }
           />
         ) : (
@@ -60,30 +53,37 @@ const Home = ({navigation, route}) => {
             You must enter your information on the profile page.
           </Text>
         )}
-        {dailyData.protein > 0 && dayControl[0] === `${new Date().getDay()}` ? (
+        {selectorData2.protein > 0 &&
+        dayControl[0] === `${new Date().getDay()}` ? (
           <View>
             <PieCard
-              data={setPieData(userInfo.daily_calori / 4, dailyData.calories)}
+              data={setPieData(
+                selectorData.daily_calori / 4,
+                selectorData2.calories,
+              )}
               header="Calories"
               title1="remaining"
               title2="consumed"
             />
             <PieCard
-              data={setPieData(userInfo.daily_fat / 4, dailyData.fat)}
+              data={setPieData(selectorData.daily_fat / 4, selectorData2.fat)}
               header="   Fat"
               title1="remaining"
               title2="consumed"
             />
             <PieCard
-              data={setPieData(userInfo.daily_protein / 4, dailyData.protein)}
+              data={setPieData(
+                selectorData.daily_protein / 4,
+                selectorData2.protein,
+              )}
               header="Protein"
               title1="remaining"
               title2="consumed"
             />
             <PieCard
               data={setPieData(
-                userInfo.daily_carbohydrate / 4,
-                dailyData.carbohydrate,
+                selectorData.daily_carbohydrate / 4,
+                selectorData2.carbohydrate,
               )}
               header="Carbohydrate"
               title1="remaining"
